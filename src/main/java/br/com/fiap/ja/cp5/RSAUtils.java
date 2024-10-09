@@ -7,11 +7,15 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class RSAUtils {
     private KeyPair keyPair;
+    private int p;
+    private int q;
 
     public RSAUtils() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         keyPair = keyGen.generateKeyPair();
+        this.p = 11; // Exemplo de valor de P
+        this.q = 13; // Exemplo de valor de Q
     }
 
     public PublicKey getPublicKey() {
@@ -20,6 +24,14 @@ public class RSAUtils {
 
     public PrivateKey getPrivateKey() {
         return keyPair.getPrivate();
+    }
+
+    public int getP() {
+        return p;
+    }
+
+    public int getQ() {
+        return q;
     }
 
     public byte[] encryptEmBlocos(String data, PublicKey publicKey) throws Exception {

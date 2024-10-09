@@ -16,6 +16,7 @@ public class Client {
             System.out.println("Chaves RSA do cliente geradas.");
             System.out.println("Chave Pública do Cliente: " + Base64.getEncoder().encodeToString(rsaUtils.getPublicKey().getEncoded()));
             System.out.println("Chave Privada do Cliente: " + Base64.getEncoder().encodeToString(rsaUtils.getPrivateKey().getEncoded()));
+            System.out.println("Valores P e Q do Cliente: P = " + rsaUtils.getP() + ", Q = " + rsaUtils.getQ());
 
             // Recebe a chave pública do servidor.
             PublicKey chavePublicaServidor = Conexao.receberChave(socket);
