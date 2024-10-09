@@ -1,5 +1,6 @@
 package br.com.fiap.ja.cp5;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,20 +12,25 @@ public class Conexao {
 
     public static String receber(Socket socket) throws IOException {
         InputStream in = socket.getInputStream();
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         byte[] infoBytes = new byte[4096];
-        int bytesLidos = in.read(infoBytes);
+        int bytesLidos;
 
-        if (bytesLidos == -1) {
-            throw new IOException("Conexão encerrada pelo servidor.");
+        socket.setSoTimeout(5000); // Define um tempo limite para a leitura.
+        while ((bytesLidos = in.read(infoBytes)) != -1) {
+            buffer.write(infoBytes, 0, bytesLidos);
+            if (bytesLidos < 4096) {
+                break;
+            }
         }
 
-        return new String(infoBytes, 0, bytesLidos).trim();
+        return new String(buffer.toByteArray()).trim();
     }
 
     public static PublicKey receberChave(Socket socket) throws Exception {
         String chaveBase64 = receber(socket);
         byte[] chaveBytes = Base64.getDecoder().decode(chaveBase64);
-        return CriptografiaClienteServidor.bytesParaChave(chaveBytes);
+        return RSAUtils.bytesParaChave(chaveBytes);
     }
 
     public static void enviarChave(Socket socket, PublicKey chave) throws IOException {
@@ -36,8 +42,7 @@ public class Conexao {
 
     public static void enviar(Socket socket, String textoRequisicao) throws IOException {
         OutputStream out = socket.getOutputStream();
-        String textoBase64 = Base64.getEncoder().encodeToString(textoRequisicao.getBytes());
-        out.write((textoBase64 + "\n").getBytes());
+        out.write((textoRequisicao + "\n").getBytes());
         out.flush();
     }
 }

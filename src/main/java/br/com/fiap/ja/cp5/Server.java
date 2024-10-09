@@ -26,11 +26,14 @@ public class Server {
                     PublicKey chavePublicaCliente = Conexao.receberChave(socketClient);
                     System.out.println("Chave pública do cliente recebida.");
 
-                    // Recebe mensagem do cliente.
+                    // Recebe mensagem do cliente e decifra.
                     String mensagemCifrada = Conexao.receber(socketClient);
-                    System.out.println("Mensagem cifrada recebida do cliente: " + mensagemCifrada);
-                    String mensagemDecifrada = rsaUtils.decrypt(Base64.getDecoder().decode(mensagemCifrada), rsaUtils.getPrivateKey());
-                    System.out.println("Mensagem decifrada do cliente: " + mensagemDecifrada);
+                    if (!mensagemCifrada.isEmpty()) {
+                        String mensagemDecifrada = rsaUtils.decryptEmBlocos(Base64.getDecoder().decode(mensagemCifrada), rsaUtils.getPrivateKey());
+                        System.out.println("Mensagem recebida do cliente: " + mensagemDecifrada);
+                    } else {
+                        System.out.println("Nenhuma mensagem recebida do cliente.");
+                    }
 
                     // Solicita uma resposta para enviar ao cliente.
                     Scanner input = new Scanner(System.in);
@@ -38,7 +41,7 @@ public class Server {
                     String resposta = input.nextLine();
 
                     // Cifra a resposta e envia ao cliente.
-                    byte[] respostaCifrada = rsaUtils.encrypt(resposta, chavePublicaCliente);
+                    byte[] respostaCifrada = rsaUtils.encryptEmBlocos(resposta, chavePublicaCliente);
                     Conexao.enviar(socketClient, Base64.getEncoder().encodeToString(respostaCifrada));
                     System.out.println("Resposta cifrada enviada ao cliente.");
                 } catch (Exception e) {

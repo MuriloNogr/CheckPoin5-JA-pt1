@@ -1,11 +1,9 @@
 package br.com.fiap.ja.cp5;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import javax.crypto.Cipher;
+import java.io.ByteArrayOutputStream;
+import java.security.spec.X509EncodedKeySpec;
 
 public class RSAUtils {
     private KeyPair keyPair;
@@ -24,15 +22,36 @@ public class RSAUtils {
         return keyPair.getPrivate();
     }
 
-    public byte[] encrypt(String data, PublicKey publicKey) throws Exception {
+    public byte[] encryptEmBlocos(String data, PublicKey publicKey) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        return cipher.doFinal(data.getBytes());
+        byte[] dataBytes = data.getBytes();
+
+        return processarEmBlocos(dataBytes, cipher, 245);
     }
 
-    public String decrypt(byte[] data, PrivateKey privateKey) throws Exception {
+    public String decryptEmBlocos(byte[] data, PrivateKey privateKey) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
-        return new String(cipher.doFinal(data));
+
+        byte[] decifrados = processarEmBlocos(data, cipher, 256);
+        return new String(decifrados);
+    }
+
+    private byte[] processarEmBlocos(byte[] dados, Cipher cipher, int tamanhoBloco) throws Exception {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        for (int i = 0; i < dados.length; i += tamanhoBloco) {
+            int comprimento = Math.min(tamanhoBloco, dados.length - i);
+            byte[] bloco = cipher.doFinal(dados, i, comprimento);
+            outputStream.write(bloco);
+        }
+
+        return outputStream.toByteArray();
+    }
+
+    public static PublicKey bytesParaChave(byte[] bytesChave) throws Exception {
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePublic(new X509EncodedKeySpec(bytesChave));
     }
 }

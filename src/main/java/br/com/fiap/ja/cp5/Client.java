@@ -24,22 +24,23 @@ public class Client {
             System.out.println("Chave pública enviada ao servidor.");
 
             // Solicita mensagem do usuário.
-            System.out.println("Pronto para solicitar mensagem ao usuário.");
             Scanner input = new Scanner(System.in);
             System.out.print("Digite a sua mensagem: ");
             String textoRequisicao = input.nextLine();
-            System.out.println("Mensagem do usuário: " + textoRequisicao);
 
-            // Cifrar a mensagem com RSA e enviar para o servidor.
-            byte[] textoCifrado = rsaUtils.encrypt(textoRequisicao, chavePublicaServidor);
+            // Cifrar a mensagem com RSA e enviar para o servidor em blocos.
+            byte[] textoCifrado = rsaUtils.encryptEmBlocos(textoRequisicao, chavePublicaServidor);
             Conexao.enviar(socket, Base64.getEncoder().encodeToString(textoCifrado));
             System.out.println("Mensagem cifrada enviada ao servidor.");
 
             // Receber e decifrar a resposta do servidor.
             String respostaCifrada = Conexao.receber(socket);
-            System.out.println("Resposta cifrada recebida: " + respostaCifrada);
-            String respostaDecifrada = rsaUtils.decrypt(Base64.getDecoder().decode(respostaCifrada), rsaUtils.getPrivateKey());
-            System.out.println("Servidor respondeu: " + respostaDecifrada);
+            if (!respostaCifrada.isEmpty()) {
+                String respostaDecifrada = rsaUtils.decryptEmBlocos(Base64.getDecoder().decode(respostaCifrada), rsaUtils.getPrivateKey());
+                System.out.println("Servidor respondeu: " + respostaDecifrada);
+            } else {
+                System.out.println("Nenhuma resposta recebida do servidor.");
+            }
 
             System.out.println("Conexão finalizada.");
         } catch (Exception e) {
