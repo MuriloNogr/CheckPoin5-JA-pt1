@@ -14,10 +14,12 @@ public class Client {
             // Gera as chaves RSA do cliente.
             RSAUtils rsaUtils = new RSAUtils();
             System.out.println("Chaves RSA do cliente geradas.");
+            System.out.println("Chave Pública do Cliente: " + Base64.getEncoder().encodeToString(rsaUtils.getPublicKey().getEncoded()));
+            System.out.println("Chave Privada do Cliente: " + Base64.getEncoder().encodeToString(rsaUtils.getPrivateKey().getEncoded()));
 
             // Recebe a chave pública do servidor.
             PublicKey chavePublicaServidor = Conexao.receberChave(socket);
-            System.out.println("Chave pública do servidor recebida.");
+            System.out.println("Chave pública do servidor recebida: " + Base64.getEncoder().encodeToString(chavePublicaServidor.getEncoded()));
 
             // Envia a chave pública do cliente para o servidor.
             Conexao.enviarChave(socket, rsaUtils.getPublicKey());
@@ -30,6 +32,8 @@ public class Client {
 
             // Cifrar a mensagem com RSA e enviar para o servidor em blocos.
             byte[] textoCifrado = rsaUtils.encryptEmBlocos(textoRequisicao, chavePublicaServidor);
+            System.out.println("Mensagem original: " + textoRequisicao);
+            System.out.println("Mensagem cifrada: " + Base64.getEncoder().encodeToString(textoCifrado));
             Conexao.enviar(socket, Base64.getEncoder().encodeToString(textoCifrado));
             System.out.println("Mensagem cifrada enviada ao servidor.");
 
@@ -37,6 +41,7 @@ public class Client {
             String respostaCifrada = Conexao.receber(socket);
             if (!respostaCifrada.isEmpty()) {
                 String respostaDecifrada = rsaUtils.decryptEmBlocos(Base64.getDecoder().decode(respostaCifrada), rsaUtils.getPrivateKey());
+                System.out.println("Resposta cifrada recebida: " + respostaCifrada);
                 System.out.println("Servidor respondeu: " + respostaDecifrada);
             } else {
                 System.out.println("Nenhuma resposta recebida do servidor.");
