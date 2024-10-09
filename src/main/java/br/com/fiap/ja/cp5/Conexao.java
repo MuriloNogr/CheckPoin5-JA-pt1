@@ -16,7 +16,7 @@ public class Conexao {
         byte[] infoBytes = new byte[4096];
         int bytesLidos;
 
-        socket.setSoTimeout(5000); // Define um tempo limite para a leitura.
+        socket.setSoTimeout(10000); // Define um tempo limite para a leitura.
         while ((bytesLidos = in.read(infoBytes)) != -1) {
             buffer.write(infoBytes, 0, bytesLidos);
             if (bytesLidos < 4096) {
