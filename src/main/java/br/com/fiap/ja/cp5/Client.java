@@ -11,34 +11,28 @@ public class Client {
         try (Socket socket = new Socket("localhost", 9600)) {
             System.out.println("Conectado ao servidor.");
 
-            // Gera as chaves RSA do cliente.
             RSAUtils rsaUtils = new RSAUtils();
             System.out.println("Chaves RSA do cliente geradas.");
             System.out.println("Chave Pública do Cliente: " + Base64.getEncoder().encodeToString(rsaUtils.getPublicKey().getEncoded()));
             System.out.println("Chave Privada do Cliente: " + Base64.getEncoder().encodeToString(rsaUtils.getPrivateKey().getEncoded()));
             System.out.println("Valores P e Q do Cliente: P = " + rsaUtils.getP() + ", Q = " + rsaUtils.getQ());
 
-            // Recebe a chave pública do servidor.
             PublicKey chavePublicaServidor = Conexao.receberChave(socket);
             System.out.println("Chave pública do servidor recebida: " + Base64.getEncoder().encodeToString(chavePublicaServidor.getEncoded()));
 
-            // Envia a chave pública do cliente para o servidor.
             Conexao.enviarChave(socket, rsaUtils.getPublicKey());
             System.out.println("Chave pública enviada ao servidor.");
 
-            // Solicita mensagem do usuário.
             Scanner input = new Scanner(System.in);
             System.out.print("Digite a sua mensagem: ");
             String textoRequisicao = input.nextLine();
 
-            // Cifrar a mensagem com RSA e enviar para o servidor em blocos.
             byte[] textoCifrado = rsaUtils.encryptEmBlocos(textoRequisicao, chavePublicaServidor);
             System.out.println("Mensagem original: " + textoRequisicao);
             System.out.println("Mensagem cifrada: " + Base64.getEncoder().encodeToString(textoCifrado));
             Conexao.enviar(socket, Base64.getEncoder().encodeToString(textoCifrado));
             System.out.println("Mensagem cifrada enviada ao servidor.");
 
-            // Receber e decifrar a resposta do servidor.
             String respostaCifrada = Conexao.receber(socket);
             if (!respostaCifrada.isEmpty()) {
                 String respostaDecifrada = rsaUtils.decryptEmBlocos(Base64.getDecoder().decode(respostaCifrada), rsaUtils.getPrivateKey());

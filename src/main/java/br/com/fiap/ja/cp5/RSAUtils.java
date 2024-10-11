@@ -14,8 +14,8 @@ public class RSAUtils {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         keyPair = keyGen.generateKeyPair();
-        this.p = 11; // Exemplo de valor de P
-        this.q = 13; // Exemplo de valor de Q
+        this.p = 53;
+        this.q = 97;
     }
 
     public PublicKey getPublicKey() {
