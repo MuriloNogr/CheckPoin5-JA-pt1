@@ -73,6 +73,11 @@ public static void main(String[] args) {
 
 Ao rodar o cliente, ele se conecta ao servidor, gera suas chaves RSA e envia uma mensagem cifrada ao servidor, que responde com outra mensagem cifrada.
 
+### Planilha de dados RSA
+
+![image](https://github.com/user-attachments/assets/bbe00786-f399-42b8-9f16-d083bf61a10a)
+
+
 ### Teste com Drexel RSA Express Encryption/Decryption Calculator 
 
 ![img](https://github.com/user-attachments/assets/7f62a51a-4295-4065-a499-c3699de81154)
